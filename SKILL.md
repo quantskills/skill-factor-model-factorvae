@@ -76,6 +76,8 @@ python scripts/run_model.py verify --run-dir runs/<run_id>
 
 ## Model Boundary
 
+This repository is an independent, non-official FactorVAE reproduction and generic factor-panel adaptation.
+
 The implementation follows the FactorVAE prior-posterior dynamic-factor
 structure: historical features produce a prior factor distribution; future
 labels are used only during training to form a posterior distribution; the
