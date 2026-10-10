@@ -1,5 +1,10 @@
 # FactorVAE Alpha Model
 
+## Architecture
+
+![skill-factor-model-factorvae architecture](assets/factorvae-architecture.svg)
+
+
 `skill-factor-model-factorvae` is a standalone, installable model for synthesising a user-supplied multi-factor panel into cross-sectional stock signals.
 
 ## Capabilities

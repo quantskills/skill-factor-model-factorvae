@@ -1,5 +1,10 @@
 # FactorVAE Alpha Model
 
+## 网络结构
+
+![FactorVAE 网络结构图](assets/factorvae-architecture.svg)
+
+
 `skill-factor-model-factorvae` 是一个独立、可安装的多因子合成模型。它从用户提供的因子面板中学习动态潜在因子，输出每个股票、每个日期的横截面预测信号。
 
 ## 功能
