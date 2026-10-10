@@ -7,6 +7,14 @@
 
 `skill-factor-model-factorvae` 是一个独立、可安装的多因子合成模型。它从用户提供的因子面板中学习动态潜在因子，输出每个股票、每个日期的横截面预测信号。
 
+## 方法与论文参考
+
+本项目参考以下论文的先验-后验动态因子结构：
+
+> Yitong Duan, Lei Wang, Qizhong Zhang, Jian Li. **FactorVAE: A Probabilistic Dynamic Factor Model Based on Variational Autoencoder for Predicting Cross-Sectional Stock Returns.** AAAI 2022, pp. 4468-4476. DOI: [10.1609/aaai.v36i4.20369](https://doi.org/10.1609/aaai.v36i4.20369).
+
+这是一个**非官方独立复现与通用因子面板适配版本**。仓库保留历史编码、动态组合、后验/先验因子分布、Gaussian alpha-beta 解码与 KL 约束等核心结构；数据集、标签期限、训练切分和超参数均由用户配置。详细映射见 [论文映射说明](references/paper_mapping.md)。
+
 ## 功能
 
 - 读取 CSV 或 Parquet 多因子面板；
@@ -75,7 +83,7 @@ training:
   seed: 42
 ```
 
-完整字段说明见 [输入契约](references/input_contract.md)。
+完整字段说明见 [输入说明](references/input_contract.md)，全部参数、默认值与适用范围见 [配置参数说明](references/configuration.md)。
 
 ## 输出
 
@@ -88,7 +96,8 @@ training:
 | `training_metrics.jsonl` | 每个 epoch 的训练与验证记录 |
 | `best_checkpoint.pt` | 验证集 Pearson IC 最优 checkpoint |
 | `validation_summary.json` | 最优 epoch 与验证指标 |
-| `signals_<split>.parquet` | 导出的预测信号 |
+| `signals_<split>.parquet` | 标准三列预测信号。 |
+| `signals_<split>_with_uncertainty.parquet` | 使用可选参数后生成，包含 `prediction_std`。 |
 
 信号文件固定为：
 
@@ -97,15 +106,21 @@ date,ticker,signal
 20250102,600000,0.1837
 ```
 
-完整定义见 [输出契约](references/output_contract.md)。
+完整定义见 [输出说明](references/output_contract.md)。FactorVAE 的默认导出保持三列标准格式；如需同时导出模型预测标准差，运行：
 
-## 方法与论文参考
+```bash
+python scripts/run_model.py predict \
+  --run-dir <run_id> --split test --include-uncertainty
+```
 
-本项目参考以下论文的先验-后验动态因子结构：
+## 验证方式
 
-> Yitong Duan, Lei Wang, Qizhong Zhang, Jian Li. **FactorVAE: A Probabilistic Dynamic Factor Model Based on Variational Autoencoder for Predicting Cross-Sectional Stock Returns.** AAAI 2022, pp. 4468-4476. DOI: [10.1609/aaai.v36i4.20369](https://doi.org/10.1609/aaai.v36i4.20369).
-
-这是一个**非官方独立复现与通用因子面板适配版本**，并非论文作者发布的官方实现。仓库保留了历史编码、动态组合、后验/先验因子分布、Gaussian alpha-beta 解码与 KL 约束等核心结构；数据集、标签期限、训练切分和超参数均由用户配置，因此不以复现论文的具体数值结果为目标。详细映射见 [论文映射说明](references/paper_mapping.md)。
+| 检查 | 命令 | 成功标准 |
+|---|---|---|
+| 配置与数据 | `python scripts/run_model.py check --config <config.yaml>` | 输出 `status: valid`，并展示面板维度与各时间段可用日期。 |
+| 合成数据流程 | `python scripts/run_smoke.py` | 完成合成数据生成、配置检查与训练。 |
+| 单元测试 | `python -m pytest -q` | 全部测试通过，涵盖训练、标准信号、可选不确定度导出与运行目录校验。 |
+| 运行产物 | `python scripts/run_model.py verify --run-dir <run_id>` | 输出 `status: verified`，所需配置、清单、checkpoint 与验证摘要均存在。 |
 
 ## 研究使用说明
 

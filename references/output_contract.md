@@ -9,11 +9,15 @@ A completed run directory contains:
 - `validation_summary.json`: checkpoint selection result;
 - `signals_<split>.parquet`: optional exported predictions.
 
-Every signal file has exactly these columns:
+The default signal file has exactly these columns:
 
 ```text
 date,ticker,signal
 ```
 
-`signal` is a floating-point cross-sectional score. It is intentionally not a
-portfolio return, risk forecast, or investment recommendation.
+With `predict --include-uncertainty`, the separately named
+`signals_<split>_with_uncertainty.parquet` additionally contains `prediction_std`.
+
+`signal` is a floating-point cross-sectional score. `prediction_std` is the
+model's decoded predictive standard deviation on the label scale used by the
+run. Neither field is a portfolio return or an investment recommendation.

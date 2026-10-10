@@ -18,6 +18,7 @@ def main() -> None:
     predict_parser = subparsers.add_parser("predict")
     predict_parser.add_argument("--run-dir", required=True)
     predict_parser.add_argument("--split", default="test", choices=["train", "valid", "test"])
+    predict_parser.add_argument("--include-uncertainty", action="store_true", help="export prediction_std alongside signal")
     verify_parser = subparsers.add_parser("verify")
     verify_parser.add_argument("--run-dir", required=True)
     args = parser.parse_args()
@@ -30,7 +31,7 @@ def main() -> None:
         run_dir = train(args.config)
         print(json.dumps({"status": "complete", "run_dir": str(run_dir)}, ensure_ascii=False))
     elif args.command == "predict":
-        output = predict(args.run_dir, args.split)
+        output = predict(args.run_dir, args.split, include_uncertainty=args.include_uncertainty)
         print(json.dumps({"status": "complete", "signals": str(output)}, ensure_ascii=False))
     else:
         print(json.dumps(verify(args.run_dir), ensure_ascii=False))

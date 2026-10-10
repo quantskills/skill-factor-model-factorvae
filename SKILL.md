@@ -55,6 +55,7 @@ modules, other skills, or a bundled backtest engine.
    CSV or Parquet panel with explicit `date`, `ticker`, feature, and label columns.
 2. Start from `examples/smoke.yaml`, set paths, feature columns, label, and
    chronological train/validation/test splits.
+   Read [the configuration reference](references/configuration.en.md) before changing model or training parameters.
 3. Validate before training:
 
 ```bash
@@ -71,6 +72,7 @@ python scripts/run_model.py train --config config.yaml
 
 ```bash
 python scripts/run_model.py predict --run-dir runs/<run_id> --split test
+python scripts/run_model.py predict --run-dir runs/<run_id> --split test --include-uncertainty
 python scripts/run_model.py verify --run-dir runs/<run_id>
 ```
 

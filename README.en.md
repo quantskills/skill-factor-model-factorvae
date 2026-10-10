@@ -7,6 +7,14 @@
 
 `skill-factor-model-factorvae` is a standalone, installable model for synthesising a user-supplied multi-factor panel into cross-sectional stock signals.
 
+## Method and paper reference
+
+This project is informed by:
+
+> Yitong Duan, Lei Wang, Qizhong Zhang, Jian Li. **FactorVAE: A Probabilistic Dynamic Factor Model Based on Variational Autoencoder for Predicting Cross-Sectional Stock Returns.** AAAI 2022, pp. 4468-4476. DOI: [10.1609/aaai.v36i4.20369](https://doi.org/10.1609/aaai.v36i4.20369).
+
+This repository is an **unofficial independent reproduction and generic factor-panel adaptation**, not an implementation released by the paper authors. It retains the prior-posterior dynamic-factor design, dynamic portfolios, Gaussian alpha-beta decoder, and KL objective while leaving the dataset, label horizon, time splits, and hyperparameters configurable. See [paper mapping](references/paper_mapping.md).
+
 ## Capabilities
 
 - Loads CSV or Parquet multi-factor panels.
@@ -41,7 +49,7 @@ python -m pytest -q
 
 ## Input and output
 
-The input is one long-form CSV or Parquet panel with unique `(date, ticker)` rows. Configure one or more numeric factor columns and a label explicitly in YAML. See the [input contract](references/input_contract.md).
+The input is one long-form CSV or Parquet panel with unique `(date, ticker)` rows. Configure one or more numeric factor columns and a label explicitly in YAML. See the [input contract](references/input_contract.md) and the complete [configuration reference](references/configuration.en.md).
 
 A completed run writes a resolved configuration, input manifest, epoch metrics, selected checkpoint, validation summary, and optional signal export. Signal files always contain:
 
@@ -52,13 +60,21 @@ date,ticker,signal
 
 See the [output contract](references/output_contract.md) for the full artifact definition.
 
-## Method and paper reference
+The default FactorVAE export remains a portable three-column signal. To also export decoded predictive standard deviation, run:
 
-This project is informed by:
+```bash
+python scripts/run_model.py predict \
+  --run-dir <run_id> --split test --include-uncertainty
+```
 
-> Yitong Duan, Lei Wang, Qizhong Zhang, Jian Li. **FactorVAE: A Probabilistic Dynamic Factor Model Based on Variational Autoencoder for Predicting Cross-Sectional Stock Returns.** AAAI 2022, pp. 4468-4476. DOI: [10.1609/aaai.v36i4.20369](https://doi.org/10.1609/aaai.v36i4.20369).
+## Validation
 
-This repository is an **unofficial independent reproduction and generic factor-panel adaptation**, not an implementation released by the paper authors. It retains the prior-posterior dynamic-factor design, dynamic portfolios, Gaussian alpha-beta decoder, and KL objective while leaving the dataset, label horizon, time splits, and hyperparameters configurable. See [paper mapping](references/paper_mapping.md).
+| Check | Command | Expected result |
+|---|---|---|
+| Configuration and data | `python scripts/run_model.py check --config <config.yaml>` | Prints `status: valid` with panel dimensions and split availability. |
+| Synthetic smoke flow | `python scripts/run_smoke.py` | Generates synthetic data, validates configuration, and trains a small model. |
+| Unit tests | `python -m pytest -q` | All tests pass, including standard signals, optional uncertainty export, and run verification. |
+| Run artifacts | `python scripts/run_model.py verify --run-dir <run_id>` | Prints `status: verified` after required artifacts are present. |
 
 ## Research use
 

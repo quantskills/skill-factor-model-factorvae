@@ -47,6 +47,9 @@ def test_train_predict_and_verify(tmp_path: Path) -> None:
     frame = pd.read_parquet(signals)
     assert list(frame.columns) == ["date", "ticker", "signal"]
     assert len(frame) > 0
+    uncertainty = pd.read_parquet(predict(run_dir, "test", include_uncertainty=True))
+    assert list(uncertainty.columns) == ["date", "ticker", "signal", "prediction_std"]
+    assert uncertainty["prediction_std"].ge(0).all()
     assert verify(run_dir)["status"] == "verified"
 
 

@@ -111,7 +111,7 @@ def _load_run(run_dir: str | Path) -> tuple[dict, PanelData, FactorVAE, torch.de
     return config, panel, model, device
 
 
-def predict(run_dir: str | Path, split: str) -> Path:
+def predict(run_dir: str | Path, split: str, include_uncertainty: bool = False) -> Path:
     if split not in {"train", "valid", "test"}:
         raise ValueError("split must be train, valid, or test")
     config, panel, model, device = _load_run(run_dir)
@@ -122,16 +122,21 @@ def predict(run_dir: str | Path, split: str) -> Path:
             stocks, features, _ = panel.batch(int(position), require_label=False)
             if not len(stocks):
                 continue
-            prediction = model(torch.as_tensor(features, device=device))["prediction"].detach().cpu().numpy()
-            rows.append(pd.DataFrame({"date": int(panel.dates[position]), "ticker": panel.tickers[stocks],
-                                      "signal": prediction.astype("float64")}))
+            outputs = model(torch.as_tensor(features, device=device))
+            payload = {"date": int(panel.dates[position]), "ticker": panel.tickers[stocks],
+                       "signal": outputs["prediction"].detach().cpu().numpy().astype("float64")}
+            if include_uncertainty:
+                payload["prediction_std"] = outputs["prediction_std"].detach().cpu().numpy().astype("float64")
+            rows.append(pd.DataFrame(payload))
     if not rows:
         raise ValueError(f"no predictable rows in split {split}")
-    destination = Path(run_dir) / f"signals_{split}.parquet"
+    suffix = "_with_uncertainty" if include_uncertainty else ""
+    destination = Path(run_dir) / f"signals_{split}{suffix}.parquet"
     output = pd.concat(rows, ignore_index=True)
     output.to_parquet(destination, index=False)
-    write_json(Path(run_dir) / f"signals_{split}_summary.json", {"rows": int(len(output)), "dates": int(output.date.nunique()),
-                                                                    "path": str(destination)})
+    write_json(Path(run_dir) / f"signals_{split}{suffix}_summary.json", {"rows": int(len(output)), "dates": int(output.date.nunique()),
+                                                                           "includes_uncertainty": include_uncertainty,
+                                                                           "path": str(destination)})
     return destination
 
 
