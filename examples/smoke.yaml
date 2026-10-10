@@ -1,0 +1,28 @@
+data:
+  panel_path: generated/synthetic_panel.csv
+  date_column: date
+  ticker_column: ticker
+  label_column: label
+  feature_columns: [factor_quality, factor_value, factor_momentum]
+splits:
+  train: [20200102, 20200210]
+  valid: [20200211, 20200226]
+  test: [20200227, 20200317]
+preprocessing:
+  lookback: 5
+  standardize_features: true
+  standardize_labels: true
+model:
+  hidden_size: 16
+  latent_factors: 3
+  portfolios: 5
+  dropout: 0.0
+  kl_weight: 0.01
+  kl_warmup_epochs: 2
+training:
+  epochs: 3
+  learning_rate: 0.003
+  weight_decay: 0.0
+  seed: 42
+  device: cpu
+output_root: ../outputs/smoke

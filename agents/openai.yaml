@@ -1,3 +1,6 @@
-name: skill-template
+name: factor-model-factorvae
 entrypoint: SKILL.md
 canonical_root: SKILL.md
+display_name: FactorVAE Alpha Model
+short_description: Train a standalone probabilistic factor model and export stock signals.
+default_prompt: Train FactorVAE on a supplied multi-factor panel, select by validation Pearson IC, and export date/ticker/signal predictions.
